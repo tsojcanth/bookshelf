@@ -1,1 +1,17 @@
-This file was created by JetBrains WebStorm 6.0.2 for binding GitHub repository
+A virtual bookshelf for Storenvy purchases.
+
+As soon as a Storenvy purchase is completed the customer will receive an email with a link to download files linked to the purchased SKUs.
+
+Still totally unbaked at the moment ;)
+
+feature list
+
+* user receives email for new purchase
+* user can click on link to see SKUs purchased
+* admin needs login/cookies to access admin pages
+* non authenticated users can see login on top
+* admin see their username on top
+* admin can add SKU details and related files
+* user can download SKU details
+* admin can update SKU details
+* admin can add/remove SKU files

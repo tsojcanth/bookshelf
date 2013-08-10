@@ -21,6 +21,10 @@ http.createServer(function (req, res) {
 
                 POSTDATA.mode = POSTDATA.mode || {};
 
+
+                process_order(POSTDATA);
+
+
                 //payload = JSON.stringify(POSTDATA);
 
             }
@@ -44,8 +48,6 @@ http.createServer(function (req, res) {
     if ( query = url.parse(req.url, true).query){
         payload = JSON.stringify(query);
 
-
-        if ()
         if (query.mail){
             //send mail
 
@@ -71,4 +73,15 @@ function cookiesReceived(request){
         cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
     });
     return cookies;
+}
+
+function process_order(data){
+    var email = data.email;
+    console.log(JSON.stringify(email,null,2));
+
+    if (data.items.length){
+        data.items.forEach(function(item){
+            console.log(JSON.stringify(item,null, 2));
+        })
+    }
 }
