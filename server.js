@@ -1,5 +1,6 @@
 var http = require('http');
 var url = require('url');
+var nodemailer = require("nodemailer");
 
 var port = 8000;
 
@@ -73,6 +74,31 @@ function cookiesReceived(request){
         cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
     });
     return cookies;
+}
+
+function deliver_email(recipient){
+    var transport = nodemailer.createTransport("sendmail");
+
+    var mailOptions = {
+        from: "Paolo - Lost Pages Bookshelf Pangolin Slave ✔ <tsojcanth@gmail.com>", // sender address
+        to: [recipient], // list of receivers
+        subject: "Hello ✔", // Subject line
+        text: "Hello world ✔", // plaintext body
+        html: "<b>Hello world ✔</b>" // html body
+    }
+
+// send mail with defined transport object
+    transport.sendMail(mailOptions, function(error, response){
+        if(error){
+            console.log(error);
+        }else{
+            console.log("Message sent: " + response.message);
+        }
+
+        // if you don't want to use this transport object anymore, uncomment following line
+        //smtpTransport.close(); // shut down the connection pool, no more messages
+    });
+
 }
 
 function process_order(data){

@@ -8,10 +8,11 @@ feature list
 
 * user receives email for new purchase
 * user can click on link to see SKUs purchased
+* user can download SKU files they purchased (held in data/SKUNUMBER.ZIP)
 * admin needs login/cookies to access admin pages
-* non authenticated users can see login on top
+* users with no authentication can see login on top
 * admin see their username on top
 * admin can add SKU details and related files
-* user can download SKU details
+
 * admin can update SKU details
 * admin can add/remove SKU files
