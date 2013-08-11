@@ -6,10 +6,10 @@ Still totally unbaked at the moment ;)
 
 ## Feature list
 
-* &2611; user receives email for new purchase
-* &2610; user can click on email link to see SKUs purchased
-* &2610; user can download SKU files they purchased (held in data/SKUNUMBER.ZIP) through email and web
-* &2610; admin see their username on top
-* &2610; admin can add SKU details and related files
-* &2610; admin can update SKU details
-* &2610; admin can add/remove SKU files
+* ✔ user receives email for new purchase 
+* ☐ user can click on email link to see SKUs purchased
+* ☐ user can download SKU files they purchased (held in data/SKUNUMBER.ZIP) through email and web
+* ☐ admin see their username on top
+* ☐ admin can add SKU details and related files
+* ☐ admin can update SKU details
+* ☐ admin can add/remove SKU files
