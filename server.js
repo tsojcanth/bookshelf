@@ -5,6 +5,7 @@ var nodemailer = require("nodemailer");
 var storenvy_subdomain = 'lostpages';
 
 var bucket = ClientBucket();
+var skuData = [];
 
 var port = 8000;
 
@@ -38,10 +39,6 @@ http.createServer(function (req, res) {
         });
         return;
     }
-
-    //var cookies = cookiesReceived(req);
-    //cookieSet(res);
-
 
     res.writeHead(200, {
         'Content-Type': 'text/html'
@@ -129,21 +126,20 @@ function process_order(data){
 
     var baseUserUrl = "http://pangolin.lostpages.co.uk/?client="+client.Id()+"&token="+client.token();
 
-    var content = '<html><body></html></htmk><h1>Thank you for your purchase!</h1><p>You can access your purchased documents at <a href="'+baseUserUrl+'">your Lost Lages Bookshelf</a></p>';
-
+    var content = '<html><body></html></html>' +
+        '<h1>Thank you for your purchase!</h1>' +
+        '<p>You can access your purchased documents at <a href="'+baseUserUrl+'">your Lost Lages Bookshelf</a></p>';
 
     if (data.items.length){
         content +="<h2>New Purchases</h2>";
         data.items.forEach(function(itemEntry){
             var item = itemEntry['item'];
-            content += '<p><a href="'+baseUserUrl+'&sku='+item.sku+'>'+safe_tags_regex(item["product_name"])+ "</a></p>";
+            content += '<p><a href="'+baseUserUrl+'&sku='+item.sku+'">'+safe_tags_regex(item["product_name"])+ "</a></p>";
         });
         content += '</body></html>';
         deliver_email('tsojcanth+RPG@gmail.com',content);
     }
-
 }
-
 
 function valueIterator(hash, lambda){
     var result;
@@ -153,7 +149,6 @@ function valueIterator(hash, lambda){
         }
     }
 }
-
 
 function ClientBucket(){
     var clients = [];
@@ -186,28 +181,36 @@ function ClientBucket(){
                     if (client.Id() == id){ return client; }
                 }
             );
+        },
+        getData: function(){
+            var data = {clients:[]};
+            clients.forEach(function(client){
+                data.clients.push(client.getData());
+            });
+            return data;
         }
     };
 }
-function Client(email){
-    var id = ""+(new Date).getTime()+d(9999);
-    var mySkus = [];
-    var token = d(99999999);
+function Client(email, id, security_token, skus){
+    var id = id || ""+(new Date).getTime()+d(9999);
+    var mySkus = skus || [];
+    var token = security_token || d(99999999);
 
     return {
         Id: function()              { return id; },
         mail: function()            { return email; },
-        addSKU: function (skuNumber){ skus.push(skuNumber); },
+        addSKU: function (skuNumber){ mySkus.push(skuNumber); },
         token: function()           { return token; },
-        skus: function()            { return mySkus; }
+        skus: function()            { return mySkus; },
+        getData:function()          { return {id:id, skus:mySkus, token:token}; }
     }
-
 }
+
+function SKU(){}
 
 function d(faces){
     return (Math.floor(Math.random()*faces)+1 );
 }
-
 
 function safe_tags_regex(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
