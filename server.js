@@ -5,20 +5,19 @@ var nodemailer = require("nodemailer");
 var storenvy_subdomain = 'lostpages';
 
 var bucket = ClientBucket();
-var skuData = [];
+var skuData = {};
 
 var port = 8000;
 
 var clients = ClientBucket();
 
-http.createServer(function (req, res) {
+var server = http.createServer(function (req, res) {
 
     if (req.method == 'POST') {
         if (req.headers['storenvy-subdomain'] != storenvy_subdomain)    {
             res.end();
             return;
         }
-
 
         var body = '';
         req.on('data', function (data) {
@@ -45,11 +44,37 @@ http.createServer(function (req, res) {
     });
 
     var query, payload;
+    var content = '';
     if ( query = url.parse(req.url, true).query){
-        payload = JSON.stringify(query);
 
-        if (query.mail){
-            //send mail
+        if (query.clientId){
+            var client = bucket.findClientById(query.clientId);
+            if(client && client.matchToken(query.token)){
+
+                var baseLink = baseUserLink(client);
+
+
+                content = '<p>Hey '+client.mail()+'</p>' +
+                    '<p>This are the content of your bookshelf:</p>' +
+                    '<p></p>' +
+                    '';
+
+                client.skus().forEach(function(sku){
+                    var details = "SKU "+sku+": SKU Details missing";
+
+                    if (skuData[sku]){
+                        details = skuData[sku].name;
+                    }
+
+                    content += '<p><a href="'+baseLink+"&sku="+sku+'">'+details+'</a></p>';
+                });
+
+
+
+            }
+            else {
+
+            }
 
 
         }
@@ -57,16 +82,33 @@ http.createServer(function (req, res) {
 
     }
 
-    res.end('<h1>Lost Pages Bookshelf</h1>' +
-        '<p>Our pangolin librarians are working hard to provide you with your documents.</p>' +
-        '<p>If you think you should have received a purchase notification email from Lost Pages, write to tsojcanth at gmail dot com</p>');
-}).listen(port);
-console.log('Server accepting connections at port '+port);
+    res.end('<img width="320" height="240" style="float: right" src="http://upload.wikimedia.org/wikipedia/commons/2/29/Steppenschuppentier1a.jpg" /> <h1>Lost Pages Bookshelf</h1>' +
+        '<p>Our pangolin librarians are working hard to provide you with your documents, as you can see from the picture on the right.</p>' +
+        content +
+        '<p>If you think you should have received a purchase notification email from Lost Pages, but you haven`t, write to tsojcanth at gmail dot com</p>');
+})
 
+var fs = require('fs');
+var skuFileName = __dirname + '/sku.json';
 
-function cookieSet(res){
-    res.setHeader("Set-Cookie", ["language=javascript"]);
+if (!fs.existsSync(skuFileName)){
+    fs.appendFileSync( skuFileName , JSON.stringify({}) );
 }
+
+fs.readFile( skuFileName, function (err, data) {
+    if (err) {
+        throw err;
+    }
+    skuData = JSON.parse(data);
+    console.log("SKU data loaded, starting server");
+
+    server.listen(port);
+    console.log('Server accepting connections at port '+port);
+});
+
+//function cookieSet(res){
+//    res.setHeader("Set-Cookie", ["language=javascript"]);
+//}
 function cookiesReceived(request){
     var cookies = {};
     request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
@@ -102,7 +144,6 @@ function deliver_email(recipient, content){
         // if you don't want to use this transport object anymore, uncomment following line
         transport.close(); // shut down the connection pool, no more messages
     });
-
 }
 
 process_order(
@@ -124,7 +165,7 @@ function process_order(data){
 
     var client = bucket.loadOrCreateClientByMail(email);
 
-    var baseUserUrl = "http://pangolin.lostpages.co.uk/?client="+client.Id()+"&token="+client.token();
+    var baseUserUrl = baseUserLink(client);
 
     var content = '<html><body></html></html>' +
         '<h1>Thank you for your purchase!</h1>' +
@@ -134,6 +175,7 @@ function process_order(data){
         content +="<h2>New Purchases</h2>";
         data.items.forEach(function(itemEntry){
             var item = itemEntry['item'];
+            client.addSKU(item.sku);
             content += '<p><a href="'+baseUserUrl+'&sku='+item.sku+'">'+safe_tags_regex(item["product_name"])+ "</a></p>";
         });
         content += '</body></html>';
@@ -194,19 +236,23 @@ function ClientBucket(){
 function Client(email, id, security_token, skus){
     var id = id || ""+(new Date).getTime()+d(9999);
     var mySkus = skus || [];
-    var token = security_token || d(99999999);
+    var myToken = security_token || d(99999999);
 
     return {
         Id: function()              { return id; },
         mail: function()            { return email; },
         addSKU: function (skuNumber){ mySkus.push(skuNumber); },
-        token: function()           { return token; },
+        matchToken: function(token) { return token == myToken; },
+        token: function()           { return myToken; },
         skus: function()            { return mySkus; },
-        getData:function()          { return {id:id, skus:mySkus, token:token}; }
+        getData:function()          { return {id:id, skus:mySkus, token:myToken}; }
     }
 }
 
-function SKU(){}
+
+function baseUserLink(client){
+    return "http://pangolin.lostpages.co.uk/?clientId="+client.Id()+"&token="+client.token();
+}
 
 function d(faces){
     return (Math.floor(Math.random()*faces)+1 );
