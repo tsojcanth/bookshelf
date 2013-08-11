@@ -135,11 +135,8 @@ function process_order(data){
     if (data.items.length){
         content +="<h2>New Purchases</h2>";
         data.items.forEach(function(itemEntry){
-
-            console.log(itemEntry);
             var item = itemEntry['item'];
-            console.log(JSON.stringify(item,null, 2));
-            content += '<p><a href"'+baseUserUrl+'&sku='+item.sku+'><![CDATA['+item["product_name"]+ "]]></a></p>";
+            content += '<p><a href="'+baseUserUrl+'&sku='+item.sku+'><![CDATA['+item["product_name"]+ "]]></a></p>";
         });
         content += '</body></html>';
         deliver_email('tsojcanth+RPG@gmail.com',content);
