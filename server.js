@@ -1,6 +1,6 @@
 var http = require('http');
 var url = require('url');
-var nodemailer = require("nodemailer");
+//var nodemailer = require("nodemailer");
 
 var storenvy_subdomain = 'lostpages';
 
@@ -108,6 +108,18 @@ function deliver_email(recipient, content){
 
 }
 
+process_order(
+    {
+        email: 'tsojcanth@gmail.com',
+        items: [
+            {
+                sku:1,
+                product_name:"test"
+            }
+        ]
+    }
+);
+
 function process_order(data){
     var email = data.email;
 
@@ -120,16 +132,14 @@ function process_order(data){
     var content = '<h1>Thank you for your purchase!</h1><p>You can access your purchased documents at <a href="'+baseUserUrl+'">your Lost Lages Bookshelf</a></p>';
 
 
-    //if (data.items.length){
+    if (data.items.length){
         content +="<h2>New Purchases</h2>";
         data.items.forEach(function(item){
             console.log(JSON.stringify(item,null, 2));
             content += '<p><a href"'+baseUserUrl+'&sku='+item.sku+'>'+item["product_name"]+ "</a></p>";
         });
-
-
         deliver_email('tsojcanth+RPG@gmail.com',content);
-    //}
+    }
 
 }
 
@@ -162,6 +172,7 @@ function ClientBucket(){
         },
         findClientByMail:function (mail){
             return valueIterator(
+                clients,
                 function(client){
                     if (client.mail() == mail){ return client; }
                 }
@@ -169,6 +180,7 @@ function ClientBucket(){
         },
         findClientById:function (id){
             return valueIterator(
+                clients,
                 function(client){
                     if (client.Id() == id){ return client; }
                 }
