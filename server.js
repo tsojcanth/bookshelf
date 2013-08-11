@@ -120,14 +120,16 @@ function process_order(data){
     var content = '<h1>Thank you for your purchase!</h1><p>You can access your purchased documents at <a href="'+baseUserUrl+'">your Lost Lages Bookshelf</a></p>';
 
 
-    if (data.items.length){
+    //if (data.items.length){
         content +="<h2>New Purchases</h2>";
         data.items.forEach(function(item){
             console.log(JSON.stringify(item,null, 2));
             content += '<p><a href"'+baseUserUrl+'&sku='+item.sku+'>'+item["product_name"]+ "</a></p>";
         });
+
+
         deliver_email('tsojcanth+RPG@gmail.com',content);
-    }
+    //}
 
 }
 
@@ -152,6 +154,7 @@ function ClientBucket(){
 
             client = new Client(mail);
             while(this.findClientById(client.Id)){
+                console.log("client id "+client.id+" exists");
                 client = new Client(mail);
             }
             clients.push(client);
@@ -175,7 +178,7 @@ function ClientBucket(){
 }
 function Client(email){
     var id = ""+(new Date).getTime()+d(9999);
-    var skus = [];
+    var mySkus = [];
     var token = d(99999999);
 
     return {
@@ -183,7 +186,7 @@ function Client(email){
         mail: function()            { return email; },
         addSKU: function (skuNumber){ skus.push(skuNumber); },
         token: function()           { return token; },
-        skus: function()            { return skus; }
+        skus: function()            { return mySkus; }
     }
 
 }
