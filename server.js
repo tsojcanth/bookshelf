@@ -1,6 +1,6 @@
 var http = require('http');
 var url = require('url');
-//var nodemailer = require("nodemailer");
+var nodemailer = require("nodemailer");
 
 var storenvy_subdomain = 'lostpages';
 
@@ -89,7 +89,7 @@ function deliver_email(recipient, content){
         from: "Lost Pages Bookshelf Pangolin Librarian <paolo@pangolin.lostpages.co.uk>", // sender address
         to: [recipient], // list of receivers
         subject: "New Purchase from Lost Pages",  // Subject line
-        text: content // plaintext body
+        html: content // plaintext body
         //html: "<b>Hello world</b>" // html body
     }
 
@@ -111,33 +111,37 @@ function deliver_email(recipient, content){
 process_order(
     {
         email: 'tsojcanth@gmail.com',
-        items: [
-            {
+        items: [{
+            item: {
                 sku:1,
                 product_name:"test"
             }
-        ]
+        }]
     }
 );
 
 function process_order(data){
     var email = data.email;
 
-    console.log(JSON.stringify(email,null,2));
+    console.log(JSON.stringify(data));
 
     var client = bucket.loadOrCreateClientByMail(email);
 
     var baseUserUrl = "http://pangolin.lostpages.co.uk/?client="+client.Id()+"&token="+client.token();
 
-    var content = '<h1>Thank you for your purchase!</h1><p>You can access your purchased documents at <a href="'+baseUserUrl+'">your Lost Lages Bookshelf</a></p>';
+    var content = '<html><body></html></htmk><h1>Thank you for your purchase!</h1><p>You can access your purchased documents at <a href="'+baseUserUrl+'">your Lost Lages Bookshelf</a></p>';
 
 
     if (data.items.length){
         content +="<h2>New Purchases</h2>";
-        data.items.forEach(function(item){
+        data.items.forEach(function(itemEntry){
+
+            console.log(itemEntry);
+            var item = itemEntry['item'];
             console.log(JSON.stringify(item,null, 2));
-            content += '<p><a href"'+baseUserUrl+'&sku='+item.sku+'>'+item["product_name"]+ "</a></p>";
+            content += '<p><a href"'+baseUserUrl+'&sku='+item.sku+'><![CDATA['+item["product_name"]+ "]]></a></p>";
         });
+        content += '</body></html>';
         deliver_email('tsojcanth+RPG@gmail.com',content);
     }
 
