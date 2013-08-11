@@ -136,7 +136,7 @@ function process_order(data){
         content +="<h2>New Purchases</h2>";
         data.items.forEach(function(itemEntry){
             var item = itemEntry['item'];
-            content += '<p><a href="'+baseUserUrl+'&sku='+item.sku+'><![CDATA['+item["product_name"]+ "]]></a></p>";
+            content += '<p><a href="'+baseUserUrl+'&sku='+item.sku+'>'+safe_tags_regex(item["product_name"])+ "</a></p>";
         });
         content += '</body></html>';
         deliver_email('tsojcanth+RPG@gmail.com',content);
@@ -206,4 +206,9 @@ function Client(email){
 
 function d(faces){
     return (Math.floor(Math.random()*faces)+1 );
+}
+
+
+function safe_tags_regex(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
