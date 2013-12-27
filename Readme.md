@@ -10,6 +10,7 @@ Still totally unbaked at the moment. Code is horrible but it seems to be working
 * ✔ user receives email for new purchase 
 * ✔ user can see in email link to SKUs purchased
 * ✔ user can click on email link to see all SKUs purchased
+* ✔ users and purchases survive reboot
 * ✔ user can download SKU files they purchased (held in files/SKUNUMBER.ZIP) through email and web
 
 * ☐ admin see their username on top
